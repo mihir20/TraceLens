@@ -1,5 +1,6 @@
 from scapy.all import *
-import argparse
+from scapy.layers.inet import TCP
+import openai
 
 # Global set to store unique domains
 unique_domains = set()
@@ -89,6 +90,60 @@ def packet_handler(packet):
     process_http_packet(packet)
     process_https_packet(packet)
 
+def generate_report():
+    prompt = f"""
+Create a comprehensive Markdown report analyzing the following list of accessed domains: {unique_domains}. 
+The report should include:
+
+1. **Header Section**
+   - Title: "Domain Access Report"
+
+2. **Summary Section**
+   - Total unique domains accessed
+   - Total requests made (if available)
+   - Most frequently accessed domains (top 5)
+
+3. **Category Analysis**
+   - Group domains into logical categories (e.g., Social Media, News, Cloud Services, E-commerce)
+   - Include category-specific counts and percentages
+   - List example domains for each category
+
+4. **Domain Details**
+   - Table of all domains with columns:
+     1. Domain
+     2. Category
+     3. Access Count (if available)
+
+5. **Security/Privacy Highlights**
+   - Flag any suspicious domains (e.g., known trackers, malware domains)
+   - Highlight privacy-focused domains (HTTPS, privacy-first services)
+
+6. **Pattern Analysis**
+   - Notable access patterns (e.g., repeated access to specific domains)
+
+7. **Footer**
+   - Data source information
+   - Disclaimer about report limitations
+
+Format the report using proper Markdown syntax with headers, tables, and bullet points. Include visual elements like horizontal rules between sections.
+"""
+
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system",
+                 "content": "You are a cyber security analyst and report generator"},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2,
+            max_tokens=1000
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"OpenAI API error: {str(e)}")
+        exit(1)
+
 
 def main():
     # interfaces = get_if_list()
@@ -105,6 +160,14 @@ def main():
     for domain in sorted(unique_domains):
         print(domain)
     print(f"Total: {len(unique_domains)} domains")
+    # Generate and print the report
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    if not openai.api_key:
+        print("ERROR: OPENAI_API_KEY environment variable not found")
+        return
+    report = generate_report()
+    print("\n=== Generated Report ===")
+    print(report)
 
 
 if __name__ == '__main__':
