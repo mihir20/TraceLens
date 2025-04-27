@@ -128,7 +128,9 @@ The report should include:
    - Data source information
    - Disclaimer about report limitations
 
-Format the report using proper Markdown syntax with headers, tables, and bullet points. Include visual elements like horizontal rules between sections.
+Format the report using proper Markdown syntax with headers, tables, and bullet points. 
+Include visual elements like horizontal rules between sections.
+don't include any code snippets.
 """
 
     try:
@@ -153,7 +155,7 @@ def create_html_report(output_dir="reports", markdown_content=""):
     output_path.mkdir(exist_ok=True)
 
     # Convert markdown to HTML
-    html_content = markdown.markdown(markdown_content)
+    html_content = markdown.markdown(markdown_content, extensions=['tables'])
 
     # Create full HTML document with styling
     full_html = f"""
@@ -162,7 +164,6 @@ def create_html_report(output_dir="reports", markdown_content=""):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Code Review Report</title>
         <style>
             body {{ 
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
