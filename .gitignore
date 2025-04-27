@@ -35,3 +35,6 @@ ENV/
 .vscode/
 *.swp
 *.swo
+
+# generated report
+*internet_report.html
