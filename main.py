@@ -1,4 +1,6 @@
 from scapy.all import *
+from scapy.layers.inet import TCP
+
 
 def process_http_packet(packet):
     try:
